@@ -1,0 +1,23 @@
+{
+    "name": "Echelon Sovereign OS",
+    "short_name": "Echelon",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "background_color": "#020104",
+    "theme_color": "#020104",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "https://api.iconify.design/lucide:triangle.svg?color=%23fff",
+            "sizes": "192x192",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "https://api.iconify.design/lucide:triangle.svg?color=%23fff",
+            "sizes": "512x512",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ]
+}

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echelon | Sovereign Discipline</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#030105">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="app-loader" class="launch-screen">
+        <div class="loader-wrapper">
+            <svg class="echelon-logo-anim" viewBox="0 0 100 100" fill="none">
+                <path class="draw-line" d="M50 15 L85 80 L15 80 Z" stroke="#6b4c9a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path class="draw-line-delay" d="M32 60 L68 60" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+                <path class="draw-line-delay-2" d="M50 35 L60 55 L40 55 Z" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/>
+            </svg>
+            <h1 class="loader-title">ECHELON</h1>
+        </div>
+    </div>
+
+    <div class="system-grid"></div>
+    <div class="ambient-light"></div>
+
+    <div class="app-layout">
+        <aside class="sidebar border-thin">
+            <div class="brand">
+                <div class="brand-logo-small">
+                    <svg viewBox="0 0 100 100" fill="none" width="30" height="30">
+                        <path d="M50 10 L90 85 L10 85 Z" stroke="#6b4c9a" stroke-width="6" stroke-linejoin="round"/>
+                        <path d="M30 60 L70 60" stroke="#fff" stroke-width="6" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <span class="brand-name">ECHELON</span>
+            </div>
+
+            <nav class="nav-menu">
+                <button class="nav-item active" onclick="handleNavClick('dashboard')"><i class="fa-solid fa-border-all"></i> Matrix</button>
+                <button class="nav-item" data-premium="true" onclick="handleNavClick('focus')"><i class="fa-solid fa-stopwatch"></i> Focus <i class="fa-solid fa-lock lock-icon"></i></button>
+                <button class="nav-item" data-premium="true" onclick="handleNavClick('protocol-view')"><i class="fa-solid fa-skull"></i> Protocol 100 <i class="fa-solid fa-lock lock-icon"></i></button>
+                <button class="nav-item" data-premium="true" onclick="handleNavClick('intelligence-view')"><i class="fa-solid fa-chart-simple"></i> Intelligence <i class="fa-solid fa-lock lock-icon"></i></button>
+                <button class="nav-item" data-premium="true" onclick="handleNavClick('manifesto-view')"><i class="fa-solid fa-book-open"></i> Manifesto <i class="fa-solid fa-lock lock-icon"></i></button>
+                <button class="nav-item" onclick="handleNavClick('settings-view')"><i class="fa-solid fa-sliders"></i> System</button>
+            </nav>
+
+            <div class="sidebar-bottom-actions">
+                <button class="action-btn" onclick="toggleZenithMode()"><i class="fa-solid fa-moon"></i> Zenith Mode</button>
+                <button class="action-btn text-red" onclick="initiateShutdown()"><i class="fa-solid fa-power-off"></i> EOD Shutdown</button>
+                <div class="user-profile premium-card" onclick="handleNavClick('settings-view')" style="margin-top: 15px;">
+                    <div class="avatar">PK</div>
+                    <div class="user-info">
+                        <span class="user-name" id="nav-username">User</span>
+                        <span class="user-rank" id="nav-rank">AWAITING UNLOCK</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content custom-scrollbar">
+            <header class="top-header">
+                <div class="header-titles">
+                    <div class="date-badge"><span class="dot pulse"></span><span id="current-date-display">SYNCING...</span></div>
+                    <h1 class="hero-title" id="dynamic-title">Systemize the Mundane.</h1>
+                </div>
+                <div class="header-actions">
+                    <button class="btn-outline header-action-btn text-red border-red" id="header-vice-btn" onclick="openModal('add-vice-modal')" style="margin-right: 15px;"><i class="fa-solid fa-shield-virus"></i> QUARANTINE</button>
+                    <button class="btn-primary header-action-btn" id="header-init-btn" onclick="openModal('add-habit-modal')"><i class="fa-solid fa-plus"></i> INITIALIZE</button>
+                </div>
+            </header>
+
+            <div class="view-section active" id="dashboard">
+                
+                <div class="apex-target-card premium-card animate-stagger">
+                    <div class="module-header"><i class="fa-solid fa-crosshairs text-red"></i> APEX TARGET <span class="subtitle">| ONE BOLD ACTION</span></div>
+                    <div class="apex-input-wrapper">
+                        <div class="apex-checkbox" id="apex-checkbox" onclick="toggleApex()"></div>
+                        <input type="text" id="apex-input" class="apex-input" placeholder="Define the single non-negotiable task for today..." onblur="saveApex()">
+                    </div>
+                </div>
+
+                <div class="metrics-container animate-stagger" style="--stagger-idx: 1;">
+                    <div class="metric-card premium-card">
+                        <div class="metric-label"><i class="fa-solid fa-fire text-orange"></i> Total Executions</div>
+                        <div class="metric-value"><span id="streak-display">0</span></div>
+                    </div>
+                    <div class="metric-card premium-card">
+                        <div class="metric-label"><i class="fa-solid fa-bullseye text-violet"></i> Today</div>
+                        <div class="metric-value"><span id="completion-rate">0</span><span class="percent-sign">%</span></div>
+                        <div class="progress-track"><div class="progress-fill" id="completion-bar"></div></div>
+                    </div>
+                    <div class="metric-card premium-card">
+                        <div class="metric-label"><i class="fa-solid fa-moon text-muted"></i> Sleep Cycle</div>
+                        <div class="metric-value">
+                            <input type="number" class="invisible-input" placeholder="0" id="sleep-input" onchange="updateSleep(this.value)">
+                            <span class="unit">Hrs</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="matrix-panel premium-card animate-stagger" style="--stagger-idx: 2;">
+                    <div class="matrix-header">
+                        <h2>THE MATRIX</h2>
+                        <span class="locked-text">LOCKED: PAST DAYS</span>
+                    </div>
+                    <div id="empty-state" class="empty-state-box" style="display: none;"><p>Matrix empty. Initialize a protocol to begin.</p></div>
+                    <div class="matrix-viewport custom-scrollbar" id="matrix-container">
+                        <table class="matrix-table" id="habit-table">
+                            <thead><tr id="matrix-days"></tr></thead>
+                            <tbody id="habit-list-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="matrix-panel premium-card animate-stagger vice-panel" style="--stagger-idx: 3; margin-top: -10px;">
+                    <div class="matrix-header">
+                        <h2 class="text-red">VICE QUARANTINE</h2>
+                        <span class="locked-text">AVOID AT ALL COSTS</span>
+                    </div>
+                    <div id="vice-empty-state" class="empty-state-box" style="display: none;"><p>No vices quarantined.</p></div>
+                    <div class="matrix-viewport custom-scrollbar" id="vice-matrix-container">
+                        <table class="matrix-table" id="vice-table">
+                            <thead><tr id="vice-matrix-days"></tr></thead>
+                            <tbody id="vice-list-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bottom-modules animate-stagger" style="--stagger-idx: 4;">
+                    <div class="directive-card premium-card">
+                        <div class="module-header"><i class="fa-solid fa-quote-left text-violet"></i> SOVEREIGN DIRECTIVE</div>
+                        <p class="directive-text" id="daily-quote">"We suffer more often in imagination than in reality."</p>
+                        <p class="directive-author" id="quote-author">- Seneca</p>
+                    </div>
+                    <div class="system-logs-card premium-card">
+                        <div class="module-header"><i class="fa-solid fa-terminal text-muted"></i> SYSTEM ACTIVITY LOG</div>
+                        <ul class="log-list custom-scrollbar" id="system-logs">
+                            <li class="log-entry"><span class="log-time">Now</span> System Boot Sequence Initiated.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="view-section" id="focus">
+                <button id="exit-zenith-btn" class="btn-outline text-red border-red" onclick="toggleZenithMode()" style="display: none; position: absolute; top: 40px; right: 40px; z-index: 100;">
+                    <i class="fa-solid fa-xmark"></i> EXIT ZENITH
+                </button>
+                <div class="focus-container premium-card">
+                    <div class="focus-ring-wrapper">
+                        <svg class="focus-svg" viewBox="0 0 300 300">
+                            <circle class="focus-bg" cx="150" cy="150" r="140"></circle>
+                            <circle class="focus-progress" id="timer-progress" cx="150" cy="150" r="140"></circle>
+                        </svg>
+                        <div class="focus-timer-text">
+                            <div id="timer-display">25:00</div>
+                            <div class="focus-status" id="focus-status">AWAITING</div>
+                        </div>
+                    </div>
+                    <div class="focus-controls">
+                        <button class="btn-outline" onclick="setTimer(25)">Deep Work</button>
+                        <button class="btn-outline" onclick="setTimer(5)">Rest Cycle</button>
+                    </div>
+                    <button class="btn-primary" id="timer-btn" onclick="toggleTimer()" style="padding: 20px 60px; margin-top: 50px; font-size: 1rem;">ENGAGE SYSTEM</button>
+                </div>
+            </div>
+
+            <div class="view-section" id="protocol-view">
+                <div class="protocol-layout">
+                    <div class="protocol-grid premium-card" id="protocol-grid"></div>
+                    <div class="protocol-sidebar premium-card">
+                        <div class="protocol-score-box">
+                            <div class="protocol-score"><span id="protocol-count">0</span><span style="font-size: 2.5rem; color: var(--text-muted)">/100</span></div>
+                            <div class="strict-mode-badge"><i class="fa-solid fa-lock"></i> IRON MODE ACTIVE</div>
+                        </div>
+                        <div class="rules-section">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                                <h3 class="rules-title">NON-NEGOTIABLES</h3>
+                                <button class="btn-icon" onclick="openModal('protocol-modal')"><i class="fa-solid fa-sliders"></i></button>
+                            </div>
+                            <ul class="rules-list" id="protocol-rules-list"></ul>
+                            <div class="punishment-text">"Miss a day? The counter resets."</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="view-section" id="intelligence-view">
+                <div class="intelligence-header">
+                    <div>
+                        <h2 style="font-family: var(--font-brand); font-size: 2.5rem;">Data Intelligence</h2>
+                        <p class="locked-text" style="margin-top: 10px;">PERFORMANCE METRICS</p>
+                    </div>
+                </div>
+                <div class="intelligence-top">
+                    <div class="chart-card premium-card animate-stagger" style="--stagger-idx: 1;">
+                        <div class="card-title text-violet">Monthly Mastery</div>
+                        <div class="ring-container"><div class="ring-text" id="month-percent-text">0%</div><canvas id="monthCircle"></canvas></div>
+                    </div>
+                    <div class="chart-card premium-card animate-stagger" style="--stagger-idx: 2;">
+                        <div class="card-title">Yearly Orbit</div>
+                        <div class="ring-container"><div class="ring-text" id="year-percent-text">0%</div><canvas id="yearCircle"></canvas></div>
+                    </div>
+                </div>
+                <div class="intelligence-bottom">
+                    <div class="line-card premium-card animate-stagger" style="--stagger-idx: 3;">
+                        <div class="card-title">Discipline Velocity</div>
+                        <div class="canvas-wrapper"><canvas id="trendChartCanvas"></canvas></div>
+                    </div>
+                    <div class="heatmap-card premium-card animate-stagger" style="--stagger-idx: 4;">
+                        <div class="card-title">Consistency Map</div>
+                        <div class="heatmap-grid" id="heatmap-grid"></div>
+                    </div>
+                </div>
+
+                <div class="seals-container premium-card animate-stagger" style="--stagger-idx: 5; margin-top: 25px;">
+                    <div class="card-title text-violet">CRYPTOGRAPHIC MILESTONES (SOVEREIGN SEALS)</div>
+                    <div class="seals-grid">
+                        <div class="seal-box" id="seal-30">
+                            <svg viewBox="0 0 100 100" class="seal-svg"><polygon points="50,10 90,90 10,90" fill="none" stroke="currentColor" stroke-width="4"/><circle cx="50" cy="65" r="10" fill="currentColor"/></svg>
+                            <p>30 EXECUTIONS</p>
+                        </div>
+                        <div class="seal-box" id="seal-60">
+                            <svg viewBox="0 0 100 100" class="seal-svg"><rect x="20" y="20" width="60" height="60" transform="rotate(45 50 50)" fill="none" stroke="currentColor" stroke-width="4"/><circle cx="50" cy="50" r="12" fill="currentColor"/></svg>
+                            <p>60 EXECUTIONS</p>
+                        </div>
+                        <div class="seal-box" id="seal-90">
+                            <svg viewBox="0 0 100 100" class="seal-svg"><polygon points="50,5 95,50 50,95 5,50" fill="none" stroke="currentColor" stroke-width="4"/><polygon points="50,25 75,50 50,75 25,50" fill="currentColor"/></svg>
+                            <p>90 EXECUTIONS</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="view-section" id="manifesto-view">
+                <div class="manifesto-layout">
+                    <div class="archive-panel premium-card custom-scrollbar">
+                        <div class="card-title">Archive</div>
+                        <div id="journal-list" class="archive-list"></div>
+                    </div>
+                    <div class="editor-panel premium-card">
+                        <div class="editor-header">
+                            <span id="journal-date" class="editor-date">TODAY</span>
+                            <div class="mood-selectors">
+                                <button onclick="setMood('🔥')">🔥</button><button onclick="setMood('😐')">😐</button><button onclick="setMood('💀')">💀</button>
+                            </div>
+                        </div>
+                        <textarea id="journal-input" class="manifesto-input custom-scrollbar" placeholder="State your intent for today..."></textarea>
+                        <div style="text-align: right; margin-top: 30px;"><button class="btn-primary" onclick="saveJournalEntry()">Seal Entry</button></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="view-section" id="settings-view">
+                <div class="settings-container premium-card">
+                    <div class="card-title">System Parameters</div>
+                    <div class="setting-row">
+                        <div class="setting-info"><h4>Identity</h4><p>Your designation in the system.</p></div>
+                        <input type="text" id="settings-name" class="minimal-input" style="width: 300px; margin: 0;">
+                    </div>
+                    <div class="setting-row">
+                        <div class="setting-info"><h4>Export Intelligence</h4><p>Download matrix state.</p></div>
+                        <button class="btn-outline" onclick="exportData()">Export JSON</button>
+                    </div>
+                    <div class="setting-row">
+                        <div class="setting-info"><h4>Purge Database</h4><p>Irreversible deletion.</p></div>
+                        <button class="btn-outline text-red border-red" onclick="resetAllData()">Factory Reset</button>
+                    </div>
+                    <div style="margin-top: 50px; text-align: right;"><button class="btn-primary" onclick="saveSettings()">Apply Configuration</button></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="shutdown-layer" id="shutdown-sequence">
+        <div class="shutdown-content">
+            <h2 class="shutdown-title" id="shutdown-title">INITIATING END OF DAY PROTOCOL...</h2>
+            
+            <div class="shutdown-step" id="shutdown-step-1" style="display: none;">
+                <p>Did you Systemize the Mundane today?</p>
+                <div style="margin-top: 40px; display: flex; gap: 30px; justify-content: center;">
+                    <button class="btn-outline" onclick="nextShutdownStep(2)" style="font-size: 1rem; padding: 15px 40px;">AFFIRMATIVE</button>
+                    <button class="btn-outline text-red border-red" onclick="nextShutdownStep(2)" style="font-size: 1rem; padding: 15px 40px;">NEGATIVE</button>
+                </div>
+            </div>
+
+            <div class="shutdown-step" id="shutdown-step-2" style="display: none;">
+                <p>Define Tomorrow's Apex Target.</p>
+                <input type="text" id="tomorrow-apex" class="minimal-input" style="font-size: 2rem; text-align: center; margin-top: 40px;" placeholder="One bold action...">
+                <button class="btn-primary" onclick="nextShutdownStep(3)" style="margin-top: 30px; font-size: 1rem; padding: 15px 40px;">LOCK IN</button>
+            </div>
+
+            <div class="shutdown-step" id="shutdown-step-3" style="display: none;">
+                <p class="pulse-text" style="color: var(--accent-violet); font-family: var(--font-brand); font-size: 3rem;">SYSTEM SLEEP.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-layer" id="add-habit-modal">
+        <div class="modal-panel premium-card">
+            <button class="modal-close" onclick="closeModal('add-habit-modal')"><i class="fa-solid fa-xmark"></i></button>
+            <h3 style="font-family: var(--font-brand); margin-bottom: 30px; font-size: 1.8rem;">New Protocol</h3>
+            <input type="text" id="new-habit-name" placeholder="e.g. Deep Code (90m)" class="minimal-input">
+            <button class="btn-primary" onclick="addNewHabit()" style="width: 100%; font-size: 1rem; padding: 15px;">Deploy</button>
+        </div>
+    </div>
+
+    <div class="modal-layer" id="add-vice-modal">
+        <div class="modal-panel premium-card">
+            <button class="modal-close" onclick="closeModal('add-vice-modal')"><i class="fa-solid fa-xmark"></i></button>
+            <h3 style="font-family: var(--font-brand); margin-bottom: 30px; font-size: 1.8rem; color: var(--accent-red);">Quarantine Vice</h3>
+            <input type="text" id="new-vice-name" placeholder="e.g. Social Media, Sugar..." class="minimal-input">
+            <button class="btn-primary border-red text-red" onclick="addNewVice()" style="width: 100%; font-size: 1rem; padding: 15px;">Quarantine</button>
+        </div>
+    </div>
+
+    <div class="modal-layer" id="premium-modal">
+        <div class="modal-panel premium-card" style="text-align: center;">
+            <button class="modal-close" onclick="closeModal('premium-modal')"><i class="fa-solid fa-xmark"></i></button>
+            <div style="margin-bottom: 25px;">
+                <svg viewBox="0 0 100 100" fill="none" width="70" height="70" style="margin: 0 auto; filter: drop-shadow(0 0 15px rgba(107,76,154,0.6));">
+                    <path d="M50 10 L90 85 L10 85 Z" stroke="#6b4c9a" stroke-width="4"/><path d="M30 60 L70 60" stroke="#fff" stroke-width="4"/>
+                </svg>
+            </div>
+            <h3 style="font-family: var(--font-brand); margin-bottom: 15px; font-size: 2.2rem;">Sovereign Access</h3>
+            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 40px;">Unlock the full Echelon ecosystem.</p>
+            <div style="display: flex; gap: 15px;">
+                <input type="text" id="license-key" placeholder="ENTER KEY" class="minimal-input" style="margin: 0; text-align: center; letter-spacing: 3px; font-size: 1.2rem;">
+                <button class="btn-primary" onclick="verifyLicense()" style="font-size: 1rem; padding: 10px 30px;">Decrypt</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-layer" id="protocol-modal">
+        <div class="modal-panel premium-card">
+            <button class="modal-close" onclick="closeModal('protocol-modal')"><i class="fa-solid fa-xmark"></i></button>
+            <h3 style="color: var(--accent-red); font-family: var(--font-brand); margin-bottom: 30px; font-size: 1.8rem;">Iron Mode Rules</h3>
+            <input type="text" id="rule-1" placeholder="Rule 1" class="minimal-input">
+            <input type="text" id="rule-2" placeholder="Rule 2" class="minimal-input">
+            <input type="text" id="rule-3" placeholder="Rule 3" class="minimal-input">
+            <input type="text" id="rule-4" placeholder="Rule 4" class="minimal-input">
+            <button class="btn-primary" onclick="saveProtocolRules()" style="width: 100%; border-color: var(--accent-red); color: var(--accent-red); font-size: 1rem; padding: 15px;">Lock In</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
